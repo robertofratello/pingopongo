@@ -8,7 +8,7 @@ pip install -r requirements.txt
 ### run the app ###
 ```shell
 cd app
-uvicorn app/main:app 
+uvicorn main:app 
 ```
 will run on port 8000
 ```shell
