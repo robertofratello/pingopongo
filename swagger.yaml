@@ -43,7 +43,7 @@ paths:
     get:
       tags:
       - "elo management"
-      summary: "Retrieve all elo"
+      summary: "Retrieves player elo as {'elo': <elo>}, 1000 if not existing"
       
       produces:
       - "application/json"
