@@ -29,6 +29,7 @@ CORRUPTED_ELO_DB = Error(500, "Fatal: Possibly Corrupted elo db")
 NEW_PLAYER_DATA = {"elo": 1000, "num_games": 0, "last_played": int(time.time()), "multiplier": 160}
 PHANTOM_PLAYER_DATA = json.dumps({"elo": 1000, "num_games": 0, "last_played": 0, "multiplier": 160})
 
+
 class EloRepo:
     def __init__(self, db="../data/elo.json", matches_db="../data/matches.txt"):
         self.db = JsonDb(db, keys=["elo", "num_games", "last_played", "multiplier"])
