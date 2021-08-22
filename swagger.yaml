@@ -1,0 +1,149 @@
+swagger: "2.0"
+info:
+  description: "A python backend to handle elo rankings and matches history for
+  local circles. Created for table tennis"
+  version: "1.0.0"
+  title: "Pingopongo"
+  termsOfService: "http://swagger.io/terms/"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+basePath: "/v1"
+tags:
+- name: "elo management"
+  description: "APIs to handle ELO rankings"
+- name: "history"
+  description: "APIs to handle matches history"
+schemes:
+- "https"
+- "http"
+paths:
+  /getelo:
+    get:
+      tags:
+      - "elo management"
+      summary: "Retrieve all elo"
+      produces:
+      - "application/json"
+      
+      responses:
+        "200":
+          description: "OK"
+          schema: 
+            type: "object"
+            additionalProperties: 
+              type: "object"
+              properties:
+                name: 
+                  type: "string"
+                elo:
+                  type: "number"
+    
+  /getelo/{name}:
+    get:
+      tags:
+      - "elo management"
+      summary: "Retrieve all elo"
+      
+      produces:
+      - "application/json"
+      parameters: 
+        - in: "path"
+          name: "name"
+          required: true
+          type: "string"
+          description: "name of the user we want to retrieve"
+      responses:
+        "200":
+          description: "OK"
+          schema: 
+            type: "object"
+            
+            properties:
+              elo:
+                type: "number"      
+                
+  /undo:
+    post:
+      tags:
+      - "elo management"
+      summary: "undo the last match registration" 
+      produces:
+      - "text/plain"
+      responses:
+        "200":
+          description: "OK"
+        "500":
+          description: "Internal Server Error"
+          
+  /matches/{winner}/{loser}:
+    get:
+      tags:
+      - "elo management"
+      summary: "Register a new match, it updates the ELO rankings"
+      
+      produces:
+      - "text/plain"
+      parameters: 
+        - name: "winner"
+          description: "name of the winner"
+          in: "path"
+          required: true
+          type: "string"
+        - name: "loser"
+          description: "name of the loser"
+          in: "path"
+          required: true
+          type: "string"
+          
+      responses:
+        "200":
+          description: "OK"
+        "500":
+          description: "Internal Server Error"
+      
+  /games/{player}:
+    get:
+      tags:
+        - "history"
+      summary: "retrieve all historical results for a player"
+      produces:
+      - "application/json"
+      parameters: 
+        - name: "player"
+          description: "name of the player"
+          in: "path"
+          required: true
+          type: "string"
+          
+      responses:
+        "200":
+          description: "OK"
+          schema: 
+            type: "object"
+            
+            properties:
+              victories:
+                type: "array"
+                items: 
+                  type: "object"
+                  properties:
+                    winner: 
+                      type: "string"
+                    loser:
+                      type: "string"
+                    time:
+                      type: "number"
+                      
+              losses:
+                type: "array"
+                items: 
+                  type: "object"
+                  properties:
+                    winner: 
+                      type: "string"
+                    loser:
+                      type: "string"
+                    time:
+                      type: "number"
+                      
