@@ -50,6 +50,16 @@ class EloRepo:
         losses = [{"winner": x[0], "loser":x[1], "time": int(x[2])} for x in losses]
         return {"victories": victories, "losses": losses}, OK
 
+    def get_last_n_games(self, n):
+        games = self.matches_db.query(0, None)
+
+        games = [{"winner": x[0], "loser": x[1], "time": int(x[2])} for x in games]
+        try:
+            games = games[-n:]
+        except IndexError:
+            pass
+        return games, OK
+
     def getone(self, name):
         row, ok = self.db.get_one(name)
         if not ok:

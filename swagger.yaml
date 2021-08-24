@@ -76,8 +76,8 @@ paths:
         "500":
           description: "Internal Server Error"
           
-  /matches/{winner}/{loser}:
-    get:
+  /match/{winner}/{loser}:
+    post:
       tags:
       - "elo management"
       summary: "Register a new match, it updates the ELO rankings"

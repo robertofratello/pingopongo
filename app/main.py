@@ -49,6 +49,13 @@ async def get_games(name: str):
         return PlainTextResponse(err.text, err.code)
     return JSONResponse(games, 200)
 
+@app.get("/api/v1/games/last/{n}")
+async def get_last_n_games(n: int):
+    games, err = elo_repo.get_last_n_games(n)
+    if err:
+        return PlainTextResponse(err.text, err.code)
+    return JSONResponse(games, 200)
+
 @app.post("/api/v1/undo")
 async def undo():
     err = elo_repo.undo()

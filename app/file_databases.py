@@ -130,4 +130,7 @@ class FileAppend(Reserver):
     def query(self, position, value):
         with open(self.path, "r") as f:
             content = f.readlines()
-        return [x.split(",,,") for x in content if x.split(",,,")[position] == value]
+        content = [x.split(",,,") for x in content]
+        if value is None:
+            return content
+        return [x for x in content if x[position] == value]
