@@ -8,7 +8,7 @@ info:
   license:
     name: "Apache 2.0"
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
-basePath: "/v1"
+basePath: "/api/v1"
 tags:
 - name: "elo management"
   description: "APIs to handle ELO rankings"
@@ -147,3 +147,31 @@ paths:
                     time:
                       type: "number"
                       
+  /games/last/{n}:
+    get:
+      tags:
+        - "history"
+      summary: "retrieve last n results"
+      produces:
+      - "application/json"
+      parameters:
+        - name: "player"
+          description: "name of the player"
+          in: "path"
+          required: true
+          type: "string"
+
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              type: "object"
+              properties:
+                winner:
+                  type: "string"
+                loser:
+                  type: "string"
+                time:
+                  type: "number"
