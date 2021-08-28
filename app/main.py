@@ -5,12 +5,25 @@
 
 
 from typing import Optional
+import json
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse, PlainTextResponse
 from elorepo import EloRepo
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+with open("../conf/origins.json", "r") as f:
+    origins = json.load(f)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 VERSION = "1"
 elo_repo = EloRepo()
 
