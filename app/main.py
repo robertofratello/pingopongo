@@ -16,13 +16,15 @@ app = FastAPI()
 
 with open("../conf/origins.json", "r") as f:
     origins = json.load(f)
+    print(origins)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],# origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["Access-Control-Allow-Origin"]
 )
 VERSION = "1"
 elo_repo = EloRepo()
