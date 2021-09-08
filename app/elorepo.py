@@ -35,23 +35,33 @@ class EloRepo:
         self.db = JsonDb(db, keys=["elo", "num_games", "last_played", "multiplier"])
         self.matches_db = FileAppend(matches_db)
 
-    def getall(self):
-        content = self.db.get()
+    def get_dbs(self, db):
+        if not db:
+            return self.db, self.matches_db
+        return JsonDb(db + "/elo.json",
+                      keys=["elo", "num_games", "last_played", "multiplier"]), FileAppend(db + "/matches.txt")
+
+    def getall(self, db):
+        db, _ = self.get_dbs(db)
+        content = db.get()
         try:
            out = [{"name": name, "elo": val["elo"]} for name, val in content.items()]
         except KeyError:
             return None, CORRUPTED_ELO_DB
         return out, OK
 
-    def get_games_for_player(self, name):
-        victories = self.matches_db.query(0, name)
-        losses = self.matches_db.query(1, name)
+    def get_games_for_player(self, name, db):
+        db, matches_db = self.get_dbs(db)
+        victories = matches_db.query(0, name)
+        losses = matches_db.query(1, name)
         victories = [{"winner": x[0], "loser":x[1], "time": int(x[2])} for x in victories]
         losses = [{"winner": x[0], "loser":x[1], "time": int(x[2])} for x in losses]
         return {"victories": victories, "losses": losses}, OK
 
-    def get_last_n_games(self, n):
-        games = self.matches_db.query(0, None)
+    def get_last_n_games(self, n, db):
+
+        db, matches_db = self.get_dbs(db)
+        games = matches_db.query(0, None)
 
         games = [{"winner": x[0], "loser": x[1], "time": int(x[2])} for x in games]
         try:
@@ -60,8 +70,10 @@ class EloRepo:
             pass
         return games, OK
 
-    def getone(self, name):
-        row, ok = self.db.get_one(name)
+    def getone(self, name, db):
+
+        db, matches_db = self.get_dbs(db)
+        row, ok = db.get_one(name)
         if not ok:
             return {"elo":1000}, OK
         try:
@@ -69,12 +81,14 @@ class EloRepo:
         except KeyError:
             return None, CORRUPTED_ELO_DB
 
-    def register_match(self, winner, loser):
-        winner_row, ok = self.db.get_one(winner)
+    def register_match(self, winner, loser, db):
+
+        db, matches_db = self.get_dbs(db)
+        winner_row, ok = db.get_one(winner)
         if not ok:
             winner_row = NEW_PLAYER_DATA.copy()
 
-        loser_row, ok = self.db.get_one(loser)
+        loser_row, ok = db.get_one(loser)
         if not ok:
             loser_row = NEW_PLAYER_DATA.copy()
         expected_prob = 1 / (1 + math.pow(10, (loser_row["elo"] - winner_row["elo"])/400))
@@ -87,23 +101,24 @@ class EloRepo:
         self.update_multiplier(loser_row)
         winner_row["last_played"] = int(time.time())
         loser_row["last_played"] = int(time.time())
-        self.db.updaterow(winner, winner_row)
-        self.db.updaterow(loser, loser_row)
-        self.matches_db.write(winner, loser, str(int(time.time())), json.dumps(winner_row), json.dumps(loser_row))
+        db.updaterow(winner, winner_row)
+        db.updaterow(loser, loser_row)
+        matches_db.write(winner, loser, str(int(time.time())), json.dumps(winner_row), json.dumps(loser_row))
         return OK
 
-    def undo_match(self, winner, loser):
+    def undo_match(self, winner, loser, db):
 
-        winner_row, ok = self.db.get_one(winner)
+        db, matches_db = self.get_dbs(db)
+        winner_row, ok = db.get_one(winner)
         if not ok:
             return CORRUPTED_ELO_DB
-        loser_row, ok = self.db.get_one(loser)
+        loser_row, ok = db.get_one(loser)
         if not ok:
             return CORRUPTED_ELO_DB
-        last_winner_w = last(self.matches_db.query(0, winner), [0, 0, 0, PHANTOM_PLAYER_DATA, PHANTOM_PLAYER_DATA])
-        last_winner_l = last(self.matches_db.query(1, winner), [0, 0, 0, PHANTOM_PLAYER_DATA, PHANTOM_PLAYER_DATA])
-        last_loser_w = last(self.matches_db.query(0, loser), [0, 0, 0, PHANTOM_PLAYER_DATA, PHANTOM_PLAYER_DATA])
-        last_loser_l = last(self.matches_db.query(1, loser), [0, 0, 0, PHANTOM_PLAYER_DATA, PHANTOM_PLAYER_DATA])
+        last_winner_w = last(matches_db.query(0, winner), [0, 0, 0, PHANTOM_PLAYER_DATA, PHANTOM_PLAYER_DATA])
+        last_winner_l = last(matches_db.query(1, winner), [0, 0, 0, PHANTOM_PLAYER_DATA, PHANTOM_PLAYER_DATA])
+        last_loser_w = last(matches_db.query(0, loser), [0, 0, 0, PHANTOM_PLAYER_DATA, PHANTOM_PLAYER_DATA])
+        last_loser_l = last(matches_db.query(1, loser), [0, 0, 0, PHANTOM_PLAYER_DATA, PHANTOM_PLAYER_DATA])
         if int(last_winner_w[2]) > int(last_winner_l[2]):
             new_winner_row = json.loads(last_winner_w[3])
         else:
@@ -113,12 +128,12 @@ class EloRepo:
         else:
             new_loser_row = json.loads(last_loser_l[4])
 
-        self.db.updaterow(winner, new_winner_row)
-        self.db.updaterow(loser, new_loser_row)
+        db.updaterow(winner, new_winner_row)
+        db.updaterow(loser, new_loser_row)
         if new_winner_row["num_games"] == 0:
-            self.db.delete_one(winner)
+           db.delete_one(winner)
         if new_loser_row["num_games"] == 0:
-            self.db.delete_one(loser)
+           db.delete_one(loser)
         return OK
 
     @staticmethod
@@ -139,9 +154,10 @@ class EloRepo:
         row["multiplier"] = out
         return
 
-    def undo(self):
-        last_row = self.matches_db.pop_last()
-        res = self.undo_match(last_row[0], last_row[1])
+    def undo(self, db):
+        _, matches_db = self.get_dbs(db)
+        last_row = matches_db.pop_last()
+        res = self.undo_match(last_row[0], last_row[1], db)
         return res
 
 
