@@ -35,7 +35,7 @@ async def health():
 
 
 @app.get("/api/v1/getelo/{name}")
-async def read_item(name: str):
+async def ryead_item(name: str):
     points, err = elo_repo.getone(name)
     if err:
         return PlainTextResponse(err.text, err.code)
