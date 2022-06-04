@@ -1,6 +1,12 @@
 import json
 import time
+import os 
 
+def return_arg(arg): 
+    return arg
+
+def return_int_arg(arg): 
+    return int(arg)
 
 class Reserver:
     def __init__(self, reserver):
@@ -46,6 +52,7 @@ class JsonDb(Reserver):
         print(sorted_items)
         print("sorted_items_above")
         self.value = {k: v for k, v in sorted_items}
+
 
     def save(self):
         self.reserve()
@@ -105,11 +112,13 @@ class FileAppend(Reserver):
             f.write("FREE")
 
     def write(self, *args):
+        assert len(args) == self.num_parts, f"{len(args)}_{self.num_parts}"
+
         if len(args) != self.num_parts:
             raise ValueError
         self.reserve()
         with open(self.path, "a+") as f:
-            f.write(",,,".join(list(args)) + "\n")
+            f.write(",,,".join(list(args)).replace("\n","") + "\n")
         self.free()
 
     def pop_last(self):
@@ -121,16 +130,46 @@ class FileAppend(Reserver):
                 return
             retval = out[-1]
             out = out[:-1]
-
         with open(self.path, "w+") as f:
             f.writelines(out)
         self.free()
-        return retval.split(",,,")
+        retval = retval.replace("\n", "").split(",,,")
+        return retval
 
     def query(self, position, value):
         with open(self.path, "r") as f:
             content = f.readlines()
-        content = [x.split(",,,") for x in content]
+        content = [x.replace("\n", "").split(",,,") for x in content]
         if value is None:
             return content
         return [x for x in content if x[position] == value]
+    
+    def sort_by(self, column, integer=True):
+        get_value = return_arg 
+        if integer: 
+            get_value = return_int_arg 
+        self.reserve()
+        with open(self.path, "r") as f:
+            out = f.readlines()
+            if len(out) == 0:
+                self.free()
+                return
+        out = [x.split(",,,") for x in out]
+        out = sorted(out, key= lambda x: get_value(x[column]))
+        out = [(",,,").join(x) for x in out]
+        print(out)
+        with open(self.path, "w+") as f:
+            f.writelines(out)
+        self.free()
+
+    def clear(self):
+        self.reserve() 
+        try:
+            os.remove(self.path)
+        except FileNotFoundError: 
+            pass
+        time.sleep(0.01)
+        assert not os.path.exists(self.path), "file not deleted"
+
+        self.free()
+

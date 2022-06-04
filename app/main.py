@@ -16,7 +16,6 @@ app = FastAPI()
 
 with open("../conf/origins.json", "r") as f:
     origins = json.load(f)
-    print(origins)
 
 app.add_middleware(
     CORSMiddleware,
@@ -34,8 +33,8 @@ async def health():
     return f"pingopongo backend v{VERSION} is running"
 
 
-@app.get("/api/v1/getelo/{name}/{db}")
-async def ryead_item(name: str, db: Optional[str, None]):
+@app.get("/api/v1/getelo/{name}")
+async def read_item(name: str, db: str = ""):
     points, err = elo_repo.getone(name, db)
     if err:
         return PlainTextResponse(err.text, err.code)
@@ -43,35 +42,40 @@ async def ryead_item(name: str, db: Optional[str, None]):
     return JSONResponse(points, 200)
 
 
-@app.get("/api/v1/getelo/{db}")
-async def get_rankings( db: Optional[str, None]):
+@app.get("/api/v1/getelo")
+async def get_rankings( db: str = ""):
     ranking, err = elo_repo.getall(db)
     if err:
         return PlainTextResponse(err.text, err.code)
     return JSONResponse(ranking, 200)
 
 
-@app.post("/api/v1/match/{winner}/{loser}/{db}")
-async def register_match(winner: str, loser: str, db: Optional[str, None]):
+@app.post("/api/v1/match/{winner}/{loser}")
+async def register_match(winner: str, loser: str, db: str = ""):
     err = elo_repo.register_match(winner, loser, db)
     return PlainTextResponse(err.text, err.code)
 
 
-@app.get("/api/v1/games/{name}/{db}")
-async def get_games(name: str, db: Optional[str, None]):
+@app.get("/api/v1/games/{name}")
+async def get_games(name: str, db: str = ""):
     games, err = elo_repo.get_games_for_player(name, db)
     if err:
         return PlainTextResponse(err.text, err.code)
     return JSONResponse(games, 200)
 
-@app.get("/api/v1/games/last/{n}/{db}")
-async def get_last_n_games(n: int, db: Optional[str, None]):
+@app.get("/api/v1/games/last/{n}")
+async def get_last_n_games(n: int, db: str = ""):
     games, err = elo_repo.get_last_n_games(n, db)
     if err:
         return PlainTextResponse(err.text, err.code)
     return JSONResponse(games, 200)
 
-@app.post("/api/v1/undo/{db}")
-async def undo( db: Optional[str, None]):
+@app.post("/api/v1/undo")
+async def undo( db: str = ""):
     err = elo_repo.undo(db)
+    return PlainTextResponse(err.text, err.code)
+
+@app.post("/api/v1/redo")
+async def redo( db: str = ""):
+    err = elo_repo.redo(db)
     return PlainTextResponse(err.text, err.code)

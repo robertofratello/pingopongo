@@ -1,0 +1,10 @@
+version: "3.9"
+services:
+  pingopongo: 
+    image: pingopongo:latest 
+    container_name: pingopongo 
+    ports: 
+      - "${PINGOPONGO_PORT}:8000"
+    volumes: 
+      - "${PINGOPONGO_DATA}:/data"
+      - "${PINGOPONGO_CONFIG}:/conf"
