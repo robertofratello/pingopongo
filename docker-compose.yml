@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   pingopongo: 
-    image: guglielmofelici/pingopongo:latest 
+    image: guglielmofelici/pingopongo-be:latest 
     container_name: pingopongo 
     ports: 
       - "${PINGOPONGO_PORT}:8000"
