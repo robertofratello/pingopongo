@@ -1,0 +1,9 @@
+#!/bin/bash
+
+
+docker run -it --rm --privileged tonistiigi/binfmt --install all &&
+docker buildx create --use &&
+docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 . -t pingopongo-be --push && 
+docker tag pingopongo-be guglielmofelici/pingopongo-be && 
+docker push guglielmofelici/pingopongo-be  || 
+    { echo "Push failed, try to login..." && docker login && docker push guglielmofelici/pingopongo-be; } 
