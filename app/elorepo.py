@@ -43,7 +43,7 @@ class EloRepo:
     def __init__(self, db="../data/default/elo.json", matches_db="../data/default/matches.txt", undo_db="../data/default/undone_matches.txt"):
         os.makedirs(os.path.dirname(db), exist_ok=True)
         self.db = JsonDb(
-            db, keys=["elo", "num_games", "last_played", "multiplier"])
+            db, keys=["elo", "isActive", "num_games", "last_played", "multiplier"])
         self.matches_db = FileAppend(matches_db)
         self.undo_db = FileAppend(undo_db)
 
@@ -57,7 +57,7 @@ class EloRepo:
         print(f"directory exists with path {db}")
 
         return JsonDb("../data/" + db + "/elo.json",
-                      keys=["elo", "num_games", "last_played", "multiplier"]), FileAppend(db + "/matches.txt")
+                      keys=["elo", "isActive", "num_games", "last_played", "multiplier"]), FileAppend(db + "/matches.txt")
 
     def get_undo_db(self, db):
         if not db:

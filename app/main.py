@@ -13,7 +13,7 @@ with open("../conf/origins.json", "r") as f:
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],# origins,
+    allow_origins=["*"],  # origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -21,6 +21,7 @@ app.add_middleware(
 )
 VERSION = "1"
 elo_repo = EloRepo()
+
 
 @app.get("/api/health")
 async def health():
@@ -37,7 +38,7 @@ async def read_item(name: str, db: str = ""):
 
 
 @app.get("/api/v1/getelo")
-async def get_rankings( db: str = ""):
+async def get_rankings(db: str = ""):
     ranking, err = elo_repo.getall(db)
     if err:
         return PlainTextResponse(err.text, err.code)
@@ -57,6 +58,7 @@ async def get_games(name: str, db: str = ""):
         return PlainTextResponse(err.text, err.code)
     return JSONResponse(games, 200)
 
+
 @app.get("/api/v1/games/last/{n}")
 async def get_last_n_games(n: int, db: str = ""):
     games, err = elo_repo.get_last_n_games(n, db)
@@ -64,12 +66,14 @@ async def get_last_n_games(n: int, db: str = ""):
         return PlainTextResponse(err.text, err.code)
     return JSONResponse(games, 200)
 
+
 @app.post("/api/v1/undo")
-async def undo( db: str = ""):
+async def undo(db: str = ""):
     err = elo_repo.undo(db)
     return PlainTextResponse(err.text, err.code)
 
+
 @app.post("/api/v1/redo")
-async def redo( db: str = ""):
+async def redo(db: str = ""):
     err = elo_repo.redo(db)
     return PlainTextResponse(err.text, err.code)
