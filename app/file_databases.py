@@ -1,12 +1,15 @@
 import json
 import time
-import os 
+import os
 
-def return_arg(arg): 
+
+def return_arg(arg):
     return arg
 
-def return_int_arg(arg): 
+
+def return_int_arg(arg):
     return int(arg)
+
 
 class Reserver:
     def __init__(self, reserver):
@@ -48,11 +51,11 @@ class JsonDb(Reserver):
             self.value = json.load(f)
 
     def sort(self):
-        sorted_items = sorted(list(self.value.items()), key=lambda x: x[1]["elo"], reverse=True)
+        sorted_items = sorted(list(self.value.items()),
+                              key=lambda x: x[1]["elo"], reverse=True)
         print(sorted_items)
         print("sorted_items_above")
         self.value = {k: v for k, v in sorted_items}
-
 
     def save(self):
         self.reserve()
@@ -118,7 +121,7 @@ class FileAppend(Reserver):
             raise ValueError
         self.reserve()
         with open(self.path, "a+") as f:
-            f.write(",,,".join(list(args)).replace("\n","") + "\n")
+            f.write(",,,".join(list(args)).replace("\n", "") + "\n")
         self.free()
 
     def pop_last(self):
@@ -143,11 +146,11 @@ class FileAppend(Reserver):
         if value is None:
             return content
         return [x for x in content if x[position] == value]
-    
+
     def sort_by(self, column, integer=True):
-        get_value = return_arg 
-        if integer: 
-            get_value = return_int_arg 
+        get_value = return_arg
+        if integer:
+            get_value = return_int_arg
         self.reserve()
         with open(self.path, "r") as f:
             out = f.readlines()
@@ -155,7 +158,7 @@ class FileAppend(Reserver):
                 self.free()
                 return
         out = [x.split(",,,") for x in out]
-        out = sorted(out, key= lambda x: get_value(x[column]))
+        out = sorted(out, key=lambda x: get_value(x[column]))
         out = [(",,,").join(x) for x in out]
         print(out)
         with open(self.path, "w+") as f:
@@ -163,13 +166,12 @@ class FileAppend(Reserver):
         self.free()
 
     def clear(self):
-        self.reserve() 
+        self.reserve()
         try:
             os.remove(self.path)
-        except FileNotFoundError: 
+        except FileNotFoundError:
             pass
         time.sleep(0.01)
         assert not os.path.exists(self.path), "file not deleted"
 
         self.free()
-
