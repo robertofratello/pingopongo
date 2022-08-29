@@ -1,5 +1,5 @@
 FROM python:3
-WORKDIR /app 
+WORKDIR /code/app 
 COPY ./requirements.txt requirements.txt 
 RUN apt-get update && \
     apt-get -y install gcc 

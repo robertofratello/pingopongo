@@ -7,5 +7,6 @@ services:
     ports: 
       - "${PINGOPONGO_PORT}:8000"
     volumes: 
+      - ".:/code"
       - "${PINGOPONGO_DATA}:/data"
       - "${PINGOPONGO_CONFIG}:/conf"
