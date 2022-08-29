@@ -6,8 +6,8 @@ RUN apt-get update && \
 RUN pip3 install -r requirements.txt 
 COPY ./app .
 EXPOSE 8000 
-VOLUME /data 
-VOLUME /conf
+VOLUME /code/data 
+VOLUME /code/conf
 ENTRYPOINT ["uvicorn","--host", "0.0.0.0", "main:app"]
 
 
