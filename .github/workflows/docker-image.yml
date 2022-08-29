@@ -12,5 +12,5 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker run --privileged --rm tonistiigi/binfmt --install all && docker buildx build --platform linux/arm/v7,linux/arm64/v8,linux/amd64 --tag guglielmofelici/pingopongo-be --push .
+      run: docker buildx create --use && docker run --privileged --rm tonistiigi/binfmt --install all && docker buildx build --platform linux/arm/v7,linux/arm64/v8,linux/amd64 --tag guglielmofelici/pingopongo-be --push .
 
