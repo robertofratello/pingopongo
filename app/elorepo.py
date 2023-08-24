@@ -79,11 +79,13 @@ class EloRepo:
         db, matches_db = self.get_dbs(db)
         victories = matches_db.query(0, name)
         losses = matches_db.query(1, name)
-        victories = [{"winner": x[0], "loser":x[1],
-                      "time": int(x[2])} for x in victories]
-        losses = [{"winner": x[0], "loser":x[1],
-                   "time": int(x[2])} for x in losses]
-        return {"victories": victories, "losses": losses}, OK
+        victories = [{"winner": x[0], "loser": x[1],
+                      "time": int(x[2]), "elo": json.loads(x[3])["elo"]} for x in victories]
+        losses = [{"winner": x[0], "loser": x[1],
+                   "time": int(x[2]), "elo": json.loads(x[4])["elo"]} for x in losses]
+        all_matches = victories + losses
+        all_matches.sort(key=lambda x: x["time"], reverse=True)
+        return all_matches, OK
 
     def get_last_n_games(self, n, db):
 
@@ -91,7 +93,7 @@ class EloRepo:
         games = matches_db.query(0, None)
 
         games = [{"winner": x[0], "loser": x[1],
-                  "time": int(x[2])} for x in games]
+                  "time": int(x[2]), "winner_elo": json.loads(x[3])["elo"], "loser_elo": json.loads(x[4])["elo"]} for x in games]
         try:
             games = games[-n:]
         except IndexError:

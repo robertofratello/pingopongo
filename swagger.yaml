@@ -119,33 +119,19 @@ paths:
       responses:
         "200":
           description: "OK"
-          schema: 
-            type: "object"
-            
-            properties:
-              victories:
-                type: "array"
-                items: 
-                  type: "object"
-                  properties:
-                    winner: 
-                      type: "string"
-                    loser:
-                      type: "string"
-                    time:
-                      type: "number"
-                      
-              losses:
-                type: "array"
-                items: 
-                  type: "object"
-                  properties:
-                    winner: 
-                      type: "string"
-                    loser:
-                      type: "string"
-                    time:
-                      type: "number"
+          schema:
+            type: "array"
+            items:
+              type: "object"
+              properties:
+                winner:
+                  type: "string"
+                loser:
+                  type: "string"
+                time:
+                  type: "number"
+                elo:
+                  type: "number"
                       
   /games/last/{n}:
     get:
@@ -155,8 +141,8 @@ paths:
       produces:
       - "application/json"
       parameters:
-        - name: "player"
-          description: "name of the player"
+        - name: "n"
+          description: "amount of games to retrieve"
           in: "path"
           required: true
           type: "string"
@@ -174,4 +160,8 @@ paths:
                 loser:
                   type: "string"
                 time:
+                  type: "number"
+                winner_elo:
+                  type: "number"
+                loser_elo:
                   type: "number"
