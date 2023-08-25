@@ -8,6 +8,6 @@ COPY ./app .
 EXPOSE 8000 
 VOLUME /code/data 
 VOLUME /code/conf
-ENTRYPOINT ["uvicorn","--host", "0.0.0.0", "main:app"]
+ENTRYPOINT ["uvicorn","--host", "0.0.0.0", "--reload", "main:app"]
 
 
