@@ -1,1 +1,135 @@
-{"guglielmo": {"elo": 1382, "isActive": true, "num_games": 25,  "last_played": "1661682994", "multiplier": 109.89089867436981}, "emanuele": {"elo": 1225, "isActive": false, "num_games": 3, "last_played": 1630688082, "multiplier": 91.08752089041973}, "francesco": {"elo": 1137, "isActive": true, "num_games": 15, "last_played": "1660845417", "multiplier": 61.9025997416956}, "dario": {"elo": 1126, "isActive": true, "num_games": 44, "last_played": "1661684061", "multiplier": 53.96918247968558}, "gabriele": {"elo": 1116, "isActive": true, "num_games": 8, "last_played": 1630947077, "multiplier": 52.31890144745836}, "saverio": {"elo": 1082, "isActive": true, "num_games": 7, "last_played": "1661466542", "multiplier": 129.9603834169977}, "marco": {"elo": 1082, "isActive": true, "num_games": 8, "last_played": 1629910740, "multiplier": 48.965556205176185}, "lavinia": {"elo": 966, "isActive": true, "num_games": 9, "last_played": 1630688082, "multiplier": 46.371927764750424}, "simone": {"elo": 965, "isActive": true, "num_games": 5, "last_played": 1650218106, "multiplier": 107.81996356878935}, "carlo": {"elo": 951, "isActive": true, "num_games": 1, "last_played": "1656758089", "multiplier": 129.9603834169977}, "alice": {"elo": 950, "isActive": true, "num_games": 7, "last_played": 1630687438, "multiplier": 57.04907925427502}, "roberto": {"elo": 935, "isActive": true, "num_games": 30, "last_played": "1661016464", "multiplier": 122.95001450304099}, "diego": {"elo": 923, "isActive": true, "num_games": 30, "last_played": "1661684061", "multiplier": 100.45038170924606}, "maria": {"elo": 887, "isActive": true, "num_games": 6, "last_played": 1629908889, "multiplier": 60.40726314663193}, "leonardo": {"elo": 822, "isActive": true, "num_games": 6, "last_played": "1659715522", "multiplier": 107.77868614925524}, "sihalebe": {"elo": 759, "isActive": true, "num_games": 10, "last_played": 1630778524, "multiplier": 43.149491230155064}, "anita": {"elo": 697, "isActive": true, "num_games": 10, "last_played": 1629907966, "multiplier": 41.74552042582199}}
+{
+  "guglielmo": {
+    "elo": 1424,
+    "isActive": true,
+    "num_games": 51,
+    "last_played": "1692916552",
+    "multiplier": 51.715761414281324
+  },
+  "emanuele": {
+    "elo": 1225,
+    "isActive": false,
+    "num_games": 3,
+    "last_played": 1630688082,
+    "multiplier": 91.08752089041973
+  },
+  "francesco": {
+    "elo": 1205,
+    "isActive": true,
+    "num_games": 47,
+    "last_played": "1692917390",
+    "multiplier": 42.42110839205399
+  },
+  "diego": {
+    "elo": 1104,
+    "isActive": true,
+    "num_games": 56,
+    "last_played": "1692917052",
+    "multiplier": 45.22933431005158
+  },
+  "gabriele": {
+    "elo": 1097,
+    "isActive": true,
+    "num_games": 11,
+    "last_played": "1692471196",
+    "multiplier": 107.77868614925524
+  },
+  "marco": {
+    "elo": 1082,
+    "isActive": true,
+    "num_games": 8,
+    "last_played": 1629910740,
+    "multiplier": 48.965556205176185
+  },
+  "simone": {
+    "elo": 1057,
+    "isActive": true,
+    "num_games": 7,
+    "last_played": "1691592979",
+    "multiplier": 129.9603834169977
+  },
+  "saverio": {
+    "elo": 1018,
+    "isActive": true,
+    "num_games": 10,
+    "last_played": "1692916191",
+    "multiplier": 91.07152232599023
+  },
+  "carlo": {
+    "elo": 1006,
+    "isActive": true,
+    "num_games": 5,
+    "last_played": "1692469588",
+    "multiplier": 78.26135017412987
+  },
+  "dario": {
+    "elo": 981,
+    "isActive": true,
+    "num_games": 99,
+    "last_played": "1692916552",
+    "multiplier": 40.43796324913241
+  },
+  "lavinia": {
+    "elo": 966,
+    "isActive": true,
+    "num_games": 9,
+    "last_played": 1630688082,
+    "multiplier": 46.371927764750424
+  },
+  "alice": {
+    "elo": 950,
+    "isActive": true,
+    "num_games": 7,
+    "last_played": 1630687438,
+    "multiplier": 57.04907925427502
+  },
+  "roberto": {
+    "elo": 905,
+    "isActive": true,
+    "num_games": 43,
+    "last_played": "1692917390",
+    "multiplier": 59.16972020127244
+  },
+  "maria": {
+    "elo": 887,
+    "isActive": true,
+    "num_games": 6,
+    "last_played": 1629908889,
+    "multiplier": 60.40726314663193
+  },
+  "flavio cb": {
+    "elo": 879,
+    "num_games": 4,
+    "isActive": true,
+    "last_played": "1692550068",
+    "multiplier": 78.26135017412987
+  },
+  "valerio": {
+    "elo": 838,
+    "num_games": 2,
+    "isActive": true,
+    "last_played": "1692311920",
+    "multiplier": 107.77868614925524
+  },
+  "leonardo": {
+    "elo": 811,
+    "isActive": true,
+    "num_games": 9,
+    "last_played": "1691592979",
+    "multiplier": 91.07152232599023
+  },
+  "sihalebe": {
+    "elo": 746,
+    "isActive": true,
+    "num_games": 11,
+    "last_played": "1690664982",
+    "multiplier": 129.9603834169977
+  },
+  "anita": {
+    "elo": 697,
+    "isActive": true,
+    "num_games": 10,
+    "last_played": 1629907966,
+    "multiplier": 41.74552042582199
+  }
+}

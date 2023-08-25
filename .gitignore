@@ -24,6 +24,3 @@ archive.zip
 # vim temporary files
 *~
 .*.sw?
-
-# file databases
-data
