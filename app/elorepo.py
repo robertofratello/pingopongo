@@ -79,10 +79,10 @@ class EloRepo:
         db, matches_db = self.get_dbs(db)
         victories = matches_db.query(0, name)
         losses = matches_db.query(1, name)
-        victories = [{"winner": x[0], "loser": x[1],
-                      "time": int(x[2]), "elo": json.loads(x[3])["elo"]} for x in victories]
-        losses = [{"winner": x[0], "loser": x[1],
-                   "time": int(x[2]), "elo": json.loads(x[4])["elo"]} for x in losses]
+        victories = [{"winner": x[WINNER], "loser": x[LOSER],
+                      "time": int(x[TIME]), "elo": json.loads(x[WINNER_DATA])["elo"]} for x in victories]
+        losses = [{"winner": x[WINNER], "loser": x[LOSER],
+                   "time": int(x[TIME]), "elo": json.loads(x[LOSER_DATA])["elo"]} for x in losses]
         all_matches = victories + losses
         all_matches.sort(key=lambda x: x["time"], reverse=True)
         return all_matches, OK
@@ -92,8 +92,9 @@ class EloRepo:
         db, matches_db = self.get_dbs(db)
         games = matches_db.query(0, None)
 
-        games = [{"winner": x[0], "loser": x[1],
-                  "time": int(x[2]), "winner_elo": json.loads(x[3])["elo"], "loser_elo": json.loads(x[4])["elo"]} for x in games]
+        games = [{"winner": x[WINNER], "loser": x[LOSER],
+                  "time": int(x[TIME]), "winner_elo": json.loads(x[WINNER_DATA])["elo"], 
+                  "loser_elo": json.loads(x[LOSER_DATA])["elo"]} for x in games]
         try:
             games = games[-n:]
         except IndexError:
@@ -111,20 +112,34 @@ class EloRepo:
         except KeyError:
             return None, CORRUPTED_ELO_DB
 
-    def compute_elo_change(self, winner, loser, db):
+    def compute_elo_change_from_rows(self, winner_row, loser_row):
         """ Returns the elo change of the winner and the loser, as a tuple. """
-        db, _ = self.get_dbs(db)
-        winner_row, ok = db.get_one(winner)
-        if not ok:
-            winner_row = NEW_PLAYER_DATA.copy()
-
-        loser_row, ok = db.get_one(loser)
-        if not ok:
-            loser_row = NEW_PLAYER_DATA.copy()
+       
         expected_prob = 1 / \
             (1 + math.pow(10, (loser_row["elo"] - winner_row["elo"])/400))
         change = (1 - expected_prob)
         return int(change * winner_row["multiplier"]), -int(change * loser_row["multiplier"]), OK
+    
+    def compute_elo_change(self, winner, loser, db, timestamp=None):
+        if timestamp is None:
+            timestamp = str(int(time.time()))
+        elo_db, _ = self.get_dbs(db)
+
+        winner_row, ok = elo_db.get_one(winner)
+        if not ok:
+            winner_row = NEW_PLAYER_DATA.copy()
+
+        loser_row, ok = elo_db.get_one(loser)
+        if not ok:
+            loser_row = NEW_PLAYER_DATA.copy()
+        self.add_inactivity_boost(winner_row, timestamp)
+        self.add_inactivity_boost(loser_row, timestamp)
+        
+        winner_change, loser_change, _ = self.compute_elo_change_from_rows(
+            winner_row, loser_row)
+        return winner_change, loser_change, OK
+
+        
 
     def register_match(self, winner, loser, db, timestamp=None, clear_undo=True):
         if timestamp is None:
@@ -139,9 +154,11 @@ class EloRepo:
         loser_row, ok = elo_db.get_one(loser)
         if not ok:
             loser_row = NEW_PLAYER_DATA.copy()
-
-        winner_change, loser_change, _ = self.compute_elo_change(
-            winner, loser, db)
+        self.add_inactivity_boost(winner_row, timestamp)
+        self.add_inactivity_boost(loser_row, timestamp)
+        
+        winner_change, loser_change, _ = self.compute_elo_change_from_rows(
+            winner_row, loser_row)
         winner_row["elo"] += winner_change
         loser_row["elo"] += loser_change
         winner_row["num_games"] += 1
@@ -154,8 +171,8 @@ class EloRepo:
         elo_db.updaterow(loser, loser_row)
         matches_db.write(winner, loser, timestamp, json.dumps(
             winner_row), json.dumps(loser_row))
-
-        undo_db.clear()
+        if clear_undo:
+            undo_db.clear()
         return OK
 
     def undo_match(self, winner, loser, db):
@@ -175,14 +192,14 @@ class EloRepo:
                             0, 0, 0, PHANTOM_PLAYER_DATA, PHANTOM_PLAYER_DATA])
         last_loser_l = last(matches_db.query(1, loser), [
                             0, 0, 0, PHANTOM_PLAYER_DATA, PHANTOM_PLAYER_DATA])
-        if int(last_winner_w[2]) > int(last_winner_l[2]):
-            new_winner_row = json.loads(last_winner_w[3])
+        if int(last_winner_w[TIME]) > int(last_winner_l[TIME]):
+            new_winner_row = json.loads(last_winner_w[WINNER_DATA])
         else:
-            new_winner_row = json.loads(last_winner_l[4])
-        if int(last_loser_w[2]) > int(last_loser_l[2]):
-            new_loser_row = json.loads(last_loser_w[3])
+            new_winner_row = json.loads(last_winner_l[LOSER_DATA])
+        if int(last_loser_w[TIME]) > int(last_loser_l[TIME]):
+            new_loser_row = json.loads(last_loser_w[WINNER_DATA])
         else:
-            new_loser_row = json.loads(last_loser_l[4])
+            new_loser_row = json.loads(last_loser_l[LOSER_DATA])
 
         db.updaterow(winner, new_winner_row)
         db.updaterow(loser, new_loser_row)
@@ -200,18 +217,22 @@ class EloRepo:
             return
         if row["num_games"] < 15:
             base = 20
-        temp_multiplier = row["multiplier"]/base
         if row["num_games"] == 15:
-            temp_multiplier = temp_multiplier / 2
+            row["multiplier"] = row["multiplier"]/2
+        row["multiplier"] = row["multiplier"] * 0.9
+        row["multiplier"] = max(base, row["multiplier"])
+        row["multiplier"] = min(row["multiplier"], 160)
+ 
+    
+    @staticmethod 
+    def add_inactivity_boost(row, timestamp): 
         years_passed = (int(timestamp) -
                         int(row["last_played"])) / (86400 * 365)
         if years_passed > 1/12:
-            temp_multiplier = min(temp_multiplier * (1 + years_passed * 8), 8)
-        temp_multiplier = math.pow(temp_multiplier, 0.9)
-        out = min(base * temp_multiplier, 160)
-        row["multiplier"] = out
-        return
+            row["multiplier"] = row["multiplier"] * min((1 + years_passed * 3.5), 8)
+        row["multiplier"] = min(row["multiplier"], 160)
 
+        
     def undo(self, db):
         _, matches_db = self.get_dbs(db)
         last_row = matches_db.pop_last()
