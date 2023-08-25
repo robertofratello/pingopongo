@@ -111,6 +111,21 @@ class EloRepo:
         except KeyError:
             return None, CORRUPTED_ELO_DB
 
+    def compute_elo_change(self, winner, loser, db):
+        """ Returns the elo change of the winner and the loser, as a tuple. """
+        db, _ = self.get_dbs(db)
+        winner_row, ok = db.get_one(winner)
+        if not ok:
+            winner_row = NEW_PLAYER_DATA.copy()
+
+        loser_row, ok = db.get_one(loser)
+        if not ok:
+            loser_row = NEW_PLAYER_DATA.copy()
+        expected_prob = 1 / \
+            (1 + math.pow(10, (loser_row["elo"] - winner_row["elo"])/400))
+        change = (1 - expected_prob)
+        return int(change * winner_row["multiplier"]), -int(change * loser_row["multiplier"]), OK
+
     def register_match(self, winner, loser, db, timestamp=None, clear_undo=True):
         if timestamp is None:
             timestamp = str(int(time.time()))
@@ -124,11 +139,11 @@ class EloRepo:
         loser_row, ok = db.get_one(loser)
         if not ok:
             loser_row = NEW_PLAYER_DATA.copy()
-        expected_prob = 1 / \
-            (1 + math.pow(10, (loser_row["elo"] - winner_row["elo"])/400))
-        change = (1 - expected_prob)
-        winner_row["elo"] += int(change * winner_row["multiplier"])
-        loser_row["elo"] -= int(change * loser_row["multiplier"])
+
+        winner_change, loser_change, _ = self.compute_elo_change(
+            winner, loser, db)
+        winner_row["elo"] += winner_change
+        loser_row["elo"] += loser_change
         winner_row["num_games"] += 1
         loser_row["num_games"] += 1
         self.update_multiplier(winner_row, timestamp)

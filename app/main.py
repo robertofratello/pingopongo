@@ -45,6 +45,15 @@ async def get_rankings(db: str = ""):
     return JSONResponse(ranking, 200)
 
 
+@app.get("/api/v1/preview/{winner}/{loser}")
+async def preview_match(winner: str, loser: str, db: str = ""):
+    winner_change, loser_change, err = elo_repo.compute_elo_change(
+        winner, loser, db)
+    if err:
+        return PlainTextResponse(err.text, err.code)
+    return JSONResponse((winner_change, loser_change))
+
+
 @app.post("/api/v1/match/{winner}/{loser}")
 async def register_match(winner: str, loser: str, db: str = ""):
     err = elo_repo.register_match(winner, loser, db)
