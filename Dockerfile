@@ -1,4 +1,4 @@
-FROM python:3
+FROM python:3.9
 WORKDIR /code/app 
 COPY ./requirements.txt requirements.txt 
 RUN apt-get update && \
