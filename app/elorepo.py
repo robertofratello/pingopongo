@@ -130,13 +130,13 @@ class EloRepo:
         if timestamp is None:
             timestamp = str(int(time.time()))
         undo_db = self.get_undo_db(db)
-        db, matches_db = self.get_dbs(db)
+        elo_db, matches_db = self.get_dbs(db)
 
-        winner_row, ok = db.get_one(winner)
+        winner_row, ok = elo_db.get_one(winner)
         if not ok:
             winner_row = NEW_PLAYER_DATA.copy()
 
-        loser_row, ok = db.get_one(loser)
+        loser_row, ok = elo_db.get_one(loser)
         if not ok:
             loser_row = NEW_PLAYER_DATA.copy()
 
@@ -150,8 +150,8 @@ class EloRepo:
         self.update_multiplier(loser_row, timestamp)
         winner_row["last_played"] = timestamp
         loser_row["last_played"] = timestamp
-        db.updaterow(winner, winner_row)
-        db.updaterow(loser, loser_row)
+        elo_db.updaterow(winner, winner_row)
+        elo_db.updaterow(loser, loser_row)
         matches_db.write(winner, loser, timestamp, json.dumps(
             winner_row), json.dumps(loser_row))
 
